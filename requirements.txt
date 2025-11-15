@@ -1,0 +1,20 @@
+# requirements.txt — pinned from current environment (generated 2025-11-15)
+# Detected and included packages required by the project files.
+# If you prefer a full environment export, run: `python -m pip freeze > requirements_full.txt`
+
+Flask==3.0.0
+Werkzeug==3.0.4
+python-dotenv==1.0.0
+tinydb==4.8.2
+requests==2.32.5
+# Google Generative AI libraries (used by adk_config / genai usage)
+google-generativeai==0.8.5
+google-genai==1.49.0
+google-adk==1.18.0
+
+# Async/http libs (used transitively or by tools)
+aiohttp==3.9.1
+
+# Optional runtime helpers that appear in the environment and may be required
+# by components in the repo (keep if you rely on them):
+# - Add more as needed based on your usage (e.g. gunicorn, uvicorn)
