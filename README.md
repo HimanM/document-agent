@@ -1,5 +1,7 @@
 # Document Agent - Capstone Demo
 
+Repository: https://github.com/HimanM/document-agent
+
 **Short description**
 - Document Agent is a small agent-based web demo that generates job application emails and cover letters using uploaded resumes and a user's public GitHub profile. Built after participating in Google/Kaggle "5 Days of AI" as a capstone-style personal project.
 
