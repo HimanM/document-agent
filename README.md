@@ -34,6 +34,17 @@
 - Services: `services/session_service.py` (TinyDB session store) and `services/knowledge_service.py`
 - Tools: `tools/github_tool.py` and `tools/document_tools.py`
 
+### Architecture diagram
+A visual diagram of the system is included below — use this in the video when you explain the high-level data flows (UI → Flask SSE → Runner/ADK → Tools & Model → TinyDB & file storage).
+
+![Architecture Diagram](assets/archi_diag.png)
+
+Talking points when showing the diagram:
+- The Browser hosts the UI and listens for SSE streamed agent messages.
+- Flask provides endpoints for chat and file uploads and invokes the Runner with normalized messages.
+- The Runner is the ADK orchestration layer: it normalizes messages, dispatches tools (resume processor, GitHub), and streams model tokens back through the Runner to Flask.
+- Tools read uploaded files and write resume summaries to the TinyDB knowledge store; the Runner also appends conversational events to the chat history TinyDB.
+
 ## Tech stack
 - Python 3.x
 - Flask (web UI and SSE)
