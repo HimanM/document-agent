@@ -56,16 +56,12 @@ Provide links to the project's code and any supporting materials. Leave the GitH
   - `tools/github_tool.py` — GitHub profile + repos tool
   - `tools/document_tools.py` — resume processing helpers
 
-## How to run (short)
-1. Install dependencies and set environment vars (see `README.md`).
-2. Start the Flask app and open the UI; upload resumes under the "Upload Resume" button; Process the resume by sending a message to the agent.
+## How to run
+See `HOW_TO_RUN.md` for detailed, step-by-step setup and run instructions (environment variables, where to obtain tokens, PowerShell commands to launch the web UI, example prompts for processing resumes, and troubleshooting tips).
 
 ## Contact / Author Note
-This is a small personal capstone demo created to explore agent tooling and to obtain the Kaggle participation certificate — a light and earnest project showcasing ADK concepts in a focused, runnable repo.
+This is a small personal capstone demo created to explore agent tooling and to obtain the Kaggle participation certificate  a light and earnest project showcasing ADK concepts in a focused, runnable repo.
 
----
-
-If you want, I can also add a small thumbnail image into the repo and update `README.md` to include the final GitHub URL once you provide it.
 
 ## Background and motivation
 As a recent graduate applying to internships, I found myself writing similar emails every day. This project was created to automate that repetitive task and to demonstrate agent tooling, memory, and event-driven streaming in a compact capstone-style repository. It was also built after attending Google and Kaggle "5 Days of AI" and is intended as a small personal capstone submission to obtain the participation certificate.
