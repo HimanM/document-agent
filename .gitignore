@@ -3,3 +3,5 @@ __temp_pipreqsnb_folder
 /.env
 /resumes/*
 /user_upload/*
+/chat_history_db.json
+/knowledge_db.json
