@@ -53,7 +53,6 @@ def create_document_tools(knowledge_service: KnowledgeService):
                 uploaded_file = genai.upload_file(path=file_path)
                 
                 
-                # --- THIS FIX IS ALSO REQUIRED ---
                 # 2. Call the model to get the summary
                 response = await summarization_model.generate_content_async(
                     [uploaded_file, prompt],

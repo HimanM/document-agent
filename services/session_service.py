@@ -128,8 +128,7 @@ class TinyDBSessionService(BaseSessionService):
                 self.SessionQuery.id == session.id
             )
 
-    # --- FIX: ADDED MISSING ABSTRACT METHODS ---
-
+    
     async def delete_session(self, app_name: str, user_id: str, session_id: str):
         """Deletes a session from the TinyDB."""
         logger.debug("Deleting session %s...", session_id)

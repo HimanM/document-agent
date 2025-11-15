@@ -1,6 +1,6 @@
 import os
+from dotenv import load_dotenv
 import google.generativeai as genai
-# --- FIX: Removed all config-related imports ---
 from google.adk.agents import LlmAgent
 from google.adk.apps.app import App, EventsCompactionConfig
 from google.adk.runners import Runner
@@ -12,13 +12,16 @@ from tools.document_tools import create_document_tools
 from tools.github_tool import create_github_tools
 
 # --- 1. Configure genai (for tools) ---
-try:
-    # genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    genai.configure(api_key="AIzaSyAYO_8mLPuEQUPY6fY0ox3V1WueDeKMGow")
-except KeyError:
+# Load .env from project root so developers don't need to set env every time
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(dotenv_path)
+gemini_key = os.environ.get("GEMINI_API_KEY")
+if not gemini_key:
     print("FATAL ERROR: GEMINI_API_KEY not found in environment.")
-    print("Please create a .env file in the project root.")
-    exit()
+    print("Please create a .env file in the project root with GEMINI_API_KEY=<your_key>")
+    exit(1)
+
+genai.configure(api_key=gemini_key)
 
 # --- 2. Initialize Services ---
 chat_session_service = TinyDBSessionService("chat_history_db.json")
@@ -74,7 +77,6 @@ paragraphs for emails; one page max for cover letters).
 """
 
 # --- 5. Create the Agent ---
-# --- FIX: Removed all generation_config and stream parameters ---
 agent = LlmAgent(
     model="gemini-2.0-flash",
     name="document_agent",

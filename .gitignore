@@ -5,3 +5,4 @@ __temp_pipreqsnb_folder
 /user_upload/*
 /chat_history_db.json
 /knowledge_db.json
+chat_history_db.json
