@@ -13,7 +13,8 @@ from tools.github_tool import create_github_tools
 
 # --- 1. Configure genai (for tools) ---
 # Load .env from project root so developers don't need to set env every time
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(PROJECT_ROOT, ".env")
 load_dotenv(dotenv_path)
 gemini_key = os.environ.get("GEMINI_API_KEY")
 if not gemini_key:
@@ -24,12 +25,19 @@ if not gemini_key:
 genai.configure(api_key=gemini_key)
 
 # --- 2. Initialize Services ---
-chat_session_service = TinyDBSessionService("chat_history_db.json")
-knowledge_service = KnowledgeService("knowledge_db.json")
+# Use absolute paths for TinyDB files so they are created in the repo root
+chat_db_path = os.path.join(PROJECT_ROOT, "chat_history_db.json")
+kb_db_path = os.path.join(PROJECT_ROOT, "knowledge_db.json")
+chat_session_service = TinyDBSessionService(chat_db_path)
+knowledge_service = KnowledgeService(kb_db_path)
 
 # --- 3. Create Tools ---
 document_tools = create_document_tools(knowledge_service)
-github_tools = create_github_tools()
+# Pass any pre-loaded GitHub env vars into the tool factory so the tool
+# uses values available at startup (avoids relying on later interactive prompts)
+github_username = os.environ.get("GITHUB_USERNAME")
+github_token = os.environ.get("GITHUB_TOKEN")
+github_tools = create_github_tools(github_username, github_token)
 all_tools = document_tools + github_tools
 
 # --- 4. Define Agent Instruction ---
@@ -70,6 +78,8 @@ Workflow (summary):
     3. Call `github_profile_tool` to gather public project and language signals.
     4. Combine all sources and produce a tailored email and cover letter that emphasizes the user's
          most relevant skills, recent projects, and achievements.
+         dont specify that you have taken information from the users github account in the email or cover letter.
+         you are using the github tool just to get updated information about the users recent projects and skills.
 
 When including GitHub info, summarize the top repos (name, stars, primary language) and use plain language
 (do not paste raw JSON unless explicitly asked). Keep emails to a professional length (subject + 3-6 short

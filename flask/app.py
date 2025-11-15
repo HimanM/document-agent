@@ -19,8 +19,6 @@ if REPO_ROOT not in sys.path:
 
 # Import project runner/agent
 from adk_config import runner, agent, chat_session_service, knowledge_service
-from google.genai import types as genai_types
-import google.generativeai as genai
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
