@@ -1,6 +1,4 @@
 # requirements.txt — pinned from current environment (generated 2025-11-15)
-# Detected and included packages required by the project files.
-# If you prefer a full environment export, run: `python -m pip freeze > requirements_full.txt`
 
 Flask==3.0.0
 Werkzeug==3.0.4
