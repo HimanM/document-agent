@@ -13,6 +13,24 @@ const resumeFileInput = document.getElementById('resume_file');
 let currentUpload = null;
 let streaming = false;
 
+// Listen for resume processing events (SSE)
+try{
+  const resumeES = new EventSource('/api/resume_events');
+  resumeES.onmessage = (e) => {
+    try{
+      const obj = JSON.parse(e.data);
+      if(obj.type === 'resume_processed'){
+        appendBubble('Resume processed: ' + obj.path + ' — ' + obj.result, 'meta');
+      }
+    }catch(err){
+      console.debug('resume_events parse error', err);
+    }
+  };
+  resumeES.onerror = (e)=>{ /* ignore errors; will reconnect automatically */ };
+}catch(e){
+  console.debug('Could not open resume_events SSE', e);
+}
+
 function fmtTime(){
   const d = new Date();
   return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
