@@ -97,7 +97,16 @@ Open `http://127.0.0.1:5000/` in your browser.
 - Replace TinyDB with a real database for multi-user support
 
 ## Demo
-- Demo video placeholder: `[Watch demo video](https://youtu.be/5jgSFukYH-c)`
+## Demo
+- Demo video: click the thumbnail below to open the demo on YouTube.
+
+<div align="center">
+	<!-- Thumbnail links to YouTube. Replace the ID below if you publish a different video. -->
+	<a href="https://youtu.be/5jgSFukYH-c" target="_blank" rel="noopener noreferrer">
+		<img src="https://img.youtube.com/vi/5jgSFukYH-c/hqdefault.jpg" alt="Watch demo video" style="max-width:100%;height:auto;border:1px solid #ddd;border-radius:6px;" />
+	</a>
+</div>
+
 
 ## Acknowledgements and references
 - Kaggle 5 Days of AI notebooks and exercises - https://www.kaggle.com/kaggle5daysofai
