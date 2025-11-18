@@ -34,15 +34,50 @@ def dict_to_event(data: Dict[str, Any]) -> Event:
     raw_content = data.get("content")
     # If we stored a dict, use it directly; if we stored a string under 'text',
     # reconstruct a simple dict with 'text'.
+    # Reconstruct a lightweight Content-like object so callers can access
+    # `.parts` and each part's `.text` attribute regardless of how the
+    # content was serialized into TinyDB.
     if isinstance(raw_content, dict):
-        content_val = raw_content
+        parts_raw = raw_content.get('parts')
+        if isinstance(parts_raw, list):
+            class _Part:
+                def __init__(self, text=None, file_data=None):
+                    self.text = text
+                    self.file_data = file_data
+
+            class _Content:
+                def __init__(self, parts):
+                    self.parts = parts
+
+            parts = []
+            for p in parts_raw:
+                if isinstance(p, dict):
+                    text = p.get('text')
+                    file_data = p.get('file_data')
+                    parts.append(_Part(text=text, file_data=file_data))
+                else:
+                    # Fallback: stringify
+                    try:
+                        parts.append(_Part(text=str(p)))
+                    except Exception:
+                        parts.append(_Part(text=None))
+
+            content_val = _Content(parts=parts)
+        else:
+            # No parts: create a simple content with a text field if present
+            txt = raw_content.get('text') if isinstance(raw_content, dict) else str(raw_content)
+            class _SimpleContent:
+                def __init__(self, text):
+                    self.text = text
+            content_val = _SimpleContent(text=txt)
     else:
         # raw_content may be a primitive/string
         try:
-            # If it's a dict-like JSON stored as string, leave as string
-            content_val = {"text": str(raw_content)}
+            content_val = type('C', (), {})()
+            content_val.text = str(raw_content)
         except Exception:
-            content_val = {"text": str(raw_content)}
+            content_val = type('C', (), {})()
+            content_val.text = str(raw_content)
 
     return Event(
         id=data["id"],

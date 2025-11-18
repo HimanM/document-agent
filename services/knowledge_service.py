@@ -19,6 +19,18 @@ class KnowledgeService:
         )
         print(f"Knowledge Service: Saved summary for: {file_name}")
 
+    def has_summary(self, file_name: str) -> bool:
+        """Return True if a summary for the given file_name already exists."""
+        KnowledgeQuery = tinydb.Query()
+        res = self.table.search(KnowledgeQuery.file_name == file_name)
+        return len(res) > 0
+
+    def get_summary(self, file_name: str):
+        """Return the stored summary document for a given file_name, or None."""
+        KnowledgeQuery = tinydb.Query()
+        res = self.table.get(KnowledgeQuery.file_name == file_name)
+        return res
+
     def get_all_summaries(self) -> str:
         """Retrieves all stored summaries as a single string for the LLM."""
         all_docs = self.table.all()

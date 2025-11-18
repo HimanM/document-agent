@@ -32,7 +32,8 @@ chat_session_service = TinyDBSessionService(chat_db_path)
 knowledge_service = KnowledgeService(kb_db_path)
 
 # --- 3. Create Tools ---
-document_tools = create_document_tools(knowledge_service)
+resumes_dir = os.path.join(PROJECT_ROOT, 'resumes')
+document_tools = create_document_tools(knowledge_service, resumes_dir=resumes_dir)
 # Pass any pre-loaded GitHub env vars into the tool factory so the tool
 # uses values available at startup (avoids relying on later interactive prompts)
 github_username = os.environ.get("GITHUB_USERNAME")
@@ -70,7 +71,7 @@ Knowledge sources and required tools:
      read and use that file in addition to the resume and GitHub data.
 
 Workflow (summary):
-- If asked to ingest resumes, call `process_static_resumes_tool`.
+- If asked to ingest or process resumes, call `process_static_resumes_tool`.
 - If asked to write an email/cover letter:
     1. Use any job posting text/file included in the user's message. If none is present, call `query_knowledge_base_tool`
          and `github_profile_tool` and generate a sample job description only if necessary.

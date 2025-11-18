@@ -18,7 +18,9 @@ if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 # Import project runner/agent
-from adk_config import runner, agent, chat_session_service, knowledge_service
+from adk_config import runner, agent, chat_session_service, knowledge_service, document_tools
+from google.adk.events import Event
+from google.genai import types as genai_types
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
@@ -153,6 +155,46 @@ def upload_resume():
         save_path = os.path.join(resumes_dir, gen_name)
         file.save(save_path)
         rel_path = os.path.join('resumes', gen_name).replace('\\', '/')
+        # Record the upload in the chat session so the agent knows about it
+        try:
+            # Ensure session exists
+            user_id = 'doc_user_1'
+            session_id = 'doc_chat_session'
+            session = asyncio.run(chat_session_service.get_session(app_name=runner.app_name, user_id=user_id, session_id=session_id))
+            if not session:
+                session = asyncio.run(chat_session_service.create_session(app_name=runner.app_name, user_id=user_id, session_id=session_id))
+
+            # Create a simple Event that contains the file token in parts so
+            # the agent can see it when reading the session history.
+            # Use google.genai.types.Content/Part so Event pydantic validation
+            # accepts the content shape.
+            try:
+                parts = [genai_types.Part(text=f'Resume uploaded: {rel_path}'), genai_types.Part(text=f'[file:{rel_path}]')]
+                content_obj = genai_types.Content(parts=parts)
+            except Exception:
+                # Fallback to a simple dict if genai types are unavailable
+                content_obj = {'parts': [{'text': f'Resume uploaded: {rel_path}'}, {'text': f'[file:{rel_path}]'}]}
+
+            evt = Event(
+                id=uuid.uuid4().hex,
+                author='user',
+                content=content_obj,
+                timestamp=time.time()
+            )
+
+            # Append the event to the session (persisted in TinyDB)
+            asyncio.run(chat_session_service.append_event(session, evt))
+        except Exception:
+            logger.exception("Failed to record resume upload in session")
+        # Trigger background processing of the *single* uploaded resume so only
+        # the newly uploaded file is ingested (document_tools[0] is the
+        # async process_single_resume_tool).
+        try:
+            # document_tools[0] is now a synchronous wrapper safe to call
+            # from a background thread (it creates its own event loop).
+            threading.Thread(target=lambda p=save_path: document_tools[0](p), daemon=True).start()
+        except Exception as e:
+            logger.exception("Failed to start resume processing thread: %s", e)
         return jsonify({"path": rel_path, "filename": gen_name})
     return jsonify({"error": "File type not allowed"}), 400
 
