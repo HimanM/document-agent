@@ -18,11 +18,20 @@ if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 # Import project runner/agent
-from adk_config import runner, agent, chat_session_service, knowledge_service
-from google.genai import types as genai_types
-import google.generativeai as genai
+from adk_config import runner, agent, chat_session_service, knowledge_service, document_tools
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
+
+# Simple broadcaster for resume processing events (SSE)
+_resume_clients = []  # list of Queue instances
+
+def broadcast_resume_event(message: dict):
+    for q in list(_resume_clients):
+        try:
+            q.put(message)
+        except Exception:
+            # ignore client queue failures
+            pass
 
 log_level = logging.DEBUG if os.getenv('DEBUG', '').lower() in ('1', 'true', 'yes') else logging.INFO
 logging.basicConfig(level=log_level)
@@ -202,6 +211,70 @@ def clear_knowledge():
     except Exception as e:
         logger.exception("Failed to clear knowledge DB")
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route('/api/resume_events')
+def resume_events():
+    """SSE endpoint that streams resume processing events to clients."""
+    def gen(q):
+        try:
+            while True:
+                msg = q.get()
+                if msg is None:
+                    break
+                yield f"data: {json.dumps(msg)}\n\n"
+        finally:
+            try:
+                _resume_clients.remove(q)
+            except Exception:
+                pass
+
+    q = Queue()
+    _resume_clients.append(q)
+    return Response(gen(q), mimetype='text/event-stream')
+
+
+@app.route('/api/process_resume', methods=['POST'])
+def process_resume():
+    """Trigger processing of a single resume file. Body: { "path": "resumes/xxx.pdf" }
+    Returns 202 if started. When processing finishes a resume_processed event
+    is broadcast to `/api/resume_events` with {type:'resume_processed', path, result}.
+    """
+    data = request.get_json() or {}
+    path = data.get('path')
+    if not path:
+        return jsonify({"error": "Missing 'path' in request body"}), 400
+
+    # resolve to absolute path; only allow files under the resumes folder
+    if os.path.isabs(path):
+        abs_path = path
+    else:
+        abs_path = os.path.join(PROJECT_ROOT, path)
+
+    resumes_dir = os.path.join(PROJECT_ROOT, 'resumes')
+    try:
+        # ensure the resolved path is under the resumes dir
+        abs_norm = os.path.normpath(abs_path)
+        if not abs_norm.startswith(os.path.normpath(resumes_dir)):
+            return jsonify({"error": "Path must be under the resumes folder"}), 400
+    except Exception:
+        return jsonify({"error": "Invalid path"}), 400
+
+    if not os.path.exists(abs_path):
+        return jsonify({"error": "File not found", "path": path}), 404
+
+    def worker(p):
+        try:
+            # document_tools[0] is the synchronous single-file processor
+            result = document_tools[0](p)
+            msg = {"type": "resume_processed", "path": path, "result": result}
+        except Exception as e:
+            msg = {"type": "resume_processed", "path": path, "result": f"Error: {e}"}
+        # Broadcast to connected SSE clients
+        broadcast_resume_event(msg)
+
+    threading.Thread(target=lambda p=abs_path: worker(p), daemon=True).start()
+    return jsonify({"started": True, "path": path}), 202
 
 
 @app.route('/api/chat', methods=['POST'])

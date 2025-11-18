@@ -12,12 +12,12 @@ Add a card or thumbnail image (used by the submission platform to help identify 
 Thumbnail placeholder: `path/to/thumbnail.png` or `https://example.com/thumbnail.png`
 
 ## Submission Track
-Agent-based Applications / Productivity Tools
+Concierge Agents
 
 ## Media Gallery (optional)
 - Demo video (YouTube): `https://www.youtube.com/your-demo-url-here` (optional)
 
-## Project Description (≤1500 words)
+## Project Description
 This project implements a lightweight agent-based assistant that helps job applicants generate concise, business-professional plain-text emails and customized cover letters from a candidate's resume and public GitHub profile. It demonstrates tool-enabled agents, session-backed memory, and event-driven streaming to a modern web UI.
 
 Key capabilities:
@@ -37,11 +37,8 @@ Limitations & Notes:
 - Model and client compatibility depends on the environment and API access; ensure required keys and package versions are available before running.
 
 ## Attachments
-Provide links to the project's code and any supporting materials. Leave the GitHub repository placeholder below; replace it with your public repository URL before final submission.
-
-- GitHub Repository (required — please paste your public repo URL here):
-
-  [ADD YOUR PUBLIC GITHUB REPOSITORY URL HERE]
+- GitHub Repository
+  https://github.com/HimanM/document-agent
 
 - Files & key locations in this repository (for reviewers who inspect the bundle directly):
   - `adk_config.py` — agent, tools, and runner configuration

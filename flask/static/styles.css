@@ -1,53 +1,318 @@
 :root{
-  --bg:#0f1720; --panel:#0b1220; --muted:#9aa4b2; --accent:#4f46e5; --me:#052f2f; --ai:#042f4f;
+  --bg: #fafafa;
+  --bg-subtle: #f5f5f5;
+  --panel: #ffffff;
+  --border: #e5e5e5;
+  --border-subtle: #f0f0f0;
+  --text: #171717;
+  --text-muted: #737373;
+  --text-subtle: #a3a3a3;
+  --accent: #0ea5e9;
+  --accent-hover: #0284c7;
+  --user-bg: #0284c7;
+  --ai-bg: #ffffff;
+  --radius: 16px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
 }
-body{margin:0;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif;background:var(--bg);color:#e6eef6}
-.app{display:flex;height:100vh}
-.sidebar{width:280px;background:#071124;padding:20px;box-sizing:border-box;border-right:1px solid rgba(255,255,255,0.03)}
-.sidebar h3{margin:0 0 12px 0}
-.sidebar-actions button{display:block;width:100%;margin-bottom:8px;padding:8px;background:#0b2a3a;border:0;color:#cfe7ff;border-radius:6px}
-.uploads{margin-top:12px}
-.uploaded-list{margin-top:8px}
-.main{flex:1;display:flex;flex-direction:column}
-.chat{flex:1;padding:20px;overflow:auto;display:flex;flex-direction:column;gap:6px}
-.bubble{max-width:70%;padding:12px 16px;margin:6px;border-radius:12px;line-height:1.4;box-shadow:0 4px 14px rgba(2,6,23,0.6)}
-.bubble .bubble-text{white-space:pre-wrap;word-break:break-word}
-.bubble.me{margin-left:auto;background:linear-gradient(90deg,#074a45,#046b6a);color:#eafffb}
-.bubble.ai{margin-right:auto;background:linear-gradient(90deg,#053b5a,#07406d);color:#e6f3ff}
-.composer{display:flex;padding:12px;border-top:1px solid rgba(255,255,255,0.03);gap:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
-#message{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:#071826;color:#e6eef6}
-#message:focus{outline:none;box-shadow:0 0 0 3px rgba(79,70,229,0.14)}
-#send{padding:10px 14px;border-radius:12px;border:none;background:linear-gradient(90deg,#6d28d9,#4f46e5);color:white;display:flex;align-items:center;justify-content:center}
 
-/* Attachment button near the composer */
-.attach-btn{background:transparent;border:0;color:var(--muted);display:flex;align-items:center;justify-content:center;padding:6px;border-radius:8px;margin-right:6px;cursor:pointer}
-.attach-btn svg{opacity:0.9}
-.attach-btn:hover{color:#cfe7ff}
+/* Base typography & layout */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0}
+body{
+  margin:0;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
 
-/* composer uploaded list */
-.composer-uploaded-list{display:flex;gap:8px;align-items:center;margin-right:8px}
-.composer-uploaded-list .file-chip{background:rgba(255,255,255,0.02);padding:6px 8px}
-.composer-uploaded-list .file-chip .remove{margin-left:8px;cursor:pointer;color:rgba(255,255,255,0.4)}
+.app{display:flex;height:100vh;width:100%;overflow:hidden}
 
-/* Visual hint when dragging a file over the message input */
-.composer textarea.drop-over, .composer textarea:hover.drop-over{box-shadow:0 0 0 3px rgba(79,70,229,0.12);border-color:rgba(79,70,229,0.7)}
+/* Sidebar */
+.sidebar{
+  width:280px;
+  background:var(--panel);
+  padding:24px 20px;
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  flex-shrink:0
+}
+.sidebar-header h3{
+  margin:0;
+  font-size:1.125rem;
+  font-weight:600;
+  letter-spacing:-0.01em;
+  color:var(--text)
+}
+.sidebar-header .muted{
+  margin:4px 0 0 0;
+  color:var(--text-muted);
+  font-size:0.875rem;
+  font-weight:400
+}
 
-/* Animated liquid-like pulse for send button */
-.send-btn{position:relative;overflow:hidden}
-.send-btn::before{content:'';position:absolute;inset:-50%;background:radial-gradient(circle at 10% 30%, rgba(255,255,255,0.06), transparent 20%), linear-gradient(90deg,#7c3aed,#4f46e5);opacity:0.8;transform:translateX(-80%);transition:transform .9s cubic-bezier(.2,.9,.2,1)}
-.send-btn:hover::before{transform:translateX(0)}
+/* Button tokens */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 16px;
+  height:40px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  cursor:pointer;
+  font-weight:500;
+  font-size:0.875rem;
+  transition:all 0.15s ease;
+  white-space:nowrap
+}
+.btn:hover{
+  background:var(--bg-subtle);
+  border-color:var(--text-muted)
+}
+.btn[disabled]{opacity:0.5;cursor:not-allowed}
+.btn-primary{
+  background:var(--accent);
+  color:white;
+  border:none
+}
+.btn-primary:hover{
+  background:var(--accent-hover)
+}
+.btn-outline{
+  background:transparent;
+  border:1px solid var(--border)
+}
+.btn-outline:hover{
+  background:var(--bg-subtle)
+}
 
-.composer .input-area{display:flex;gap:8px;width:100%}
-.composer textarea{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;resize:none}
-.timestamp{display:block;font-size:11px;color:var(--muted);margin-top:6px}
-.meta{font-size:12px;color:var(--muted);margin-top:6px}
+.sidebar-actions{display:flex;flex-direction:column;gap:10px}
 
-.typing{font-style:italic;color:var(--muted)}
+/* Resume upload area */
+.sidebar-resume-upload{margin-top:auto;padding-top:20px;border-top:1px solid var(--border-subtle)}
 
-/* System / non-agent messages inside chat bubbles */
-.bubble.meta{font-style:italic;font-size:0.85rem;color:var(--muted);opacity:0.95;max-width:70%;padding:10px 14px;background:linear-gradient(90deg,#08394a,#0b3f57);border-radius:10px}
-.file-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(255,255,255,0.02);border-radius:8px;margin-right:6px}
-.file-chip img{max-height:28px;border-radius:4px}
+/* Main area */
+.main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:var(--bg);
+  overflow:hidden
+}
+.chat{
+  flex:1;
+  padding:32px;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  max-width:900px;
+  margin:0 auto;
+  width:100%
+}
 
-/* Inline meta text shown inside a bubble (small italic completion note) */
-.bubble .inline-meta{display:block;font-style:italic;font-size:0.85rem;color:var(--muted);margin-top:6px}
+/* Chat bubbles */
+.bubble{
+  max-width:65%;
+  padding:12px 16px;
+  border-radius:var(--radius);
+  line-height:1.5;
+  font-size:0.9375rem;
+  box-shadow:var(--shadow-sm);
+  animation:fadeIn 0.2s ease;
+  word-wrap:break-word;
+  overflow-wrap:break-word
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.bubble .bubble-text{
+  white-space:pre-wrap;
+  word-break:break-word
+}
+.bubble.me{
+  margin-left:auto;
+  margin-right:0;
+  align-self:flex-end;
+  background:var(--user-bg);
+  color:white;
+  border-bottom-right-radius:4px
+}
+.bubble.ai{
+  margin-right:auto;
+  background:var(--ai-bg);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-bottom-left-radius:4px
+}
+.bubble.meta{
+  font-style:italic;
+  font-size:0.875rem;
+  color:var(--text-subtle);
+  background:var(--bg-subtle);
+  border:1px solid var(--border-subtle);
+  max-width:80%;
+  margin:0 auto
+}
+
+/* Composer */
+.composer{
+  display:flex;
+  padding:20px 32px 24px;
+  border-top:1px solid var(--border);
+  background:var(--panel);
+  max-width:900px;
+  margin:0 auto;
+  width:100%;
+  box-sizing:border-box
+}
+.composer .input-area{
+  display:flex;
+  gap:10px;
+  width:100%;
+  align-items:flex-end
+}
+.input{
+  flex:1;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--panel);
+  color:var(--text);
+  resize:none;
+  min-height:40px;
+  max-height:200px;
+  font-family:inherit;
+  font-size:0.9375rem;
+  line-height:1.5;
+  transition:all 0.15s ease
+}
+.input::placeholder{
+  color:var(--text-subtle)
+}
+.input:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(14,165,233,0.08)
+}
+
+/* Attach & send buttons */
+.attach-btn{
+  background:transparent;
+  border:0;
+  color:var(--text-muted);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:all 0.15s ease
+}
+.attach-btn svg{opacity:1}
+.attach-btn:hover{
+  background:var(--bg-subtle);
+  color:var(--text)
+}
+.send-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 18px;
+  height:44px;
+  min-width:44px;
+  border-radius:12px
+}
+.send-btn:hover{
+  transform:none
+}
+
+.composer-uploaded-list{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-right:8px
+}
+.composer-uploaded-list .file-chip{
+  background:var(--bg-subtle);
+  padding:6px 12px;
+  border-radius:8px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid var(--border);
+  font-size:0.875rem;
+  color:var(--text)
+}
+.composer-uploaded-list .file-chip .remove{
+  margin-left:4px;
+  cursor:pointer;
+  color:var(--text-muted);
+  transition:color 0.15s ease
+}
+.composer-uploaded-list .file-chip .remove:hover{
+  color:var(--text)
+}
+
+/* Small utilities */
+.timestamp{
+  display:block;
+  font-size:0.75rem;
+  color:var(--text-subtle);
+  margin-top:6px;
+  font-weight:400
+}
+.meta{
+  font-size:0.8125rem;
+  color:var(--text-muted);
+  margin-top:6px
+}
+.typing{
+  font-style:italic;
+  color:var(--text-muted)
+}
+
+/* Inline meta within bubbles */
+.bubble .inline-meta{
+  display:block;
+  font-style:italic;
+  font-size:0.8125rem;
+  color:var(--text-subtle);
+  margin-top:8px;
+  opacity:0.8
+}
+
+/* File chip img */
+.file-chip img{
+  max-height:24px;
+  border-radius:6px
+}
+
+/* Drop over state */
+.composer textarea.drop-over{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(14,165,233,0.08)
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px){
+  .sidebar{width:240px;padding:20px 16px}
+  .chat{padding:24px 20px}
+  .composer{padding:16px 20px 20px}
+}
+@media (max-width: 768px){
+  .sidebar{display:none}
+  .chat{padding:20px 16px;max-width:100%}
+  .composer{padding:12px 16px 16px;max-width:100%}
+  .bubble{max-width:85%}
+  .bubble.meta{max-width:90%}
+}

@@ -3,3 +3,11 @@ __temp_pipreqsnb_folder
 /.env
 /resumes/*
 /user_upload/*
+/chat_history_db.json
+/knowledge_db.json
+chat_history_db.json
+/video_script.md
+chat_history_db.json
+knowledge_db.json
+/assets/architecture_diagram.puml
+/CAPSTONE_WRITEUP.md

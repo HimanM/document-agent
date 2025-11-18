@@ -1,6 +1,6 @@
 import os
+from dotenv import load_dotenv
 import google.generativeai as genai
-# --- FIX: Removed all config-related imports ---
 from google.adk.agents import LlmAgent
 from google.adk.apps.app import App, EventsCompactionConfig
 from google.adk.runners import Runner
@@ -12,21 +12,33 @@ from tools.document_tools import create_document_tools
 from tools.github_tool import create_github_tools
 
 # --- 1. Configure genai (for tools) ---
-try:
-    # genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    genai.configure(api_key="AIzaSyAYO_8mLPuEQUPY6fY0ox3V1WueDeKMGow")
-except KeyError:
+# Load .env from project root so developers don't need to set env every time
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(PROJECT_ROOT, ".env")
+load_dotenv(dotenv_path)
+gemini_key = os.environ.get("GEMINI_API_KEY")
+if not gemini_key:
     print("FATAL ERROR: GEMINI_API_KEY not found in environment.")
-    print("Please create a .env file in the project root.")
-    exit()
+    print("Please create a .env file in the project root with GEMINI_API_KEY=<your_key>")
+    exit(1)
+
+genai.configure(api_key=gemini_key)
 
 # --- 2. Initialize Services ---
-chat_session_service = TinyDBSessionService("chat_history_db.json")
-knowledge_service = KnowledgeService("knowledge_db.json")
+# Use absolute paths for TinyDB files so they are created in the repo root
+chat_db_path = os.path.join(PROJECT_ROOT, "chat_history_db.json")
+kb_db_path = os.path.join(PROJECT_ROOT, "knowledge_db.json")
+chat_session_service = TinyDBSessionService(chat_db_path)
+knowledge_service = KnowledgeService(kb_db_path)
 
 # --- 3. Create Tools ---
-document_tools = create_document_tools(knowledge_service)
-github_tools = create_github_tools()
+resumes_dir = os.path.join(PROJECT_ROOT, 'resumes')
+document_tools = create_document_tools(knowledge_service, resumes_dir=resumes_dir)
+# Pass any pre-loaded GitHub env vars into the tool factory so the tool
+# uses values available at startup (avoids relying on later interactive prompts)
+github_username = os.environ.get("GITHUB_USERNAME")
+github_token = os.environ.get("GITHUB_TOKEN")
+github_tools = create_github_tools(github_username, github_token)
 all_tools = document_tools + github_tools
 
 # --- 4. Define Agent Instruction ---
@@ -59,7 +71,7 @@ Knowledge sources and required tools:
      read and use that file in addition to the resume and GitHub data.
 
 Workflow (summary):
-- If asked to ingest resumes, call `process_static_resumes_tool`.
+- If asked to ingest or process resumes, call `process_static_resumes_tool`.
 - If asked to write an email/cover letter:
     1. Use any job posting text/file included in the user's message. If none is present, call `query_knowledge_base_tool`
          and `github_profile_tool` and generate a sample job description only if necessary.
@@ -67,6 +79,8 @@ Workflow (summary):
     3. Call `github_profile_tool` to gather public project and language signals.
     4. Combine all sources and produce a tailored email and cover letter that emphasizes the user's
          most relevant skills, recent projects, and achievements.
+         dont specify that you have taken information from the users github account in the email or cover letter.
+         you are using the github tool just to get updated information about the users recent projects and skills.
 
 When including GitHub info, summarize the top repos (name, stars, primary language) and use plain language
 (do not paste raw JSON unless explicitly asked). Keep emails to a professional length (subject + 3-6 short
@@ -74,7 +88,6 @@ paragraphs for emails; one page max for cover letters).
 """
 
 # --- 5. Create the Agent ---
-# --- FIX: Removed all generation_config and stream parameters ---
 agent = LlmAgent(
     model="gemini-2.0-flash",
     name="document_agent",
