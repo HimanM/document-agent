@@ -96,9 +96,8 @@ Open `http://127.0.0.1:5000/` in your browser.
 - Persist original vs generated filenames and provide download links in the UI
 - Replace TinyDB with a real database for multi-user support
 
-## Placeholders for demo images and video
-- Screenshot placeholder: `![Demo screenshot](path/to/demo-screenshot.png)`
-- Demo video placeholder: `[Watch demo video](https://your.video.url.here)`
+## Demo
+- Demo video placeholder: `[Watch demo video](https://youtu.be/5jgSFukYH-c)`
 
 ## Acknowledgements and references
 - Kaggle 5 Days of AI notebooks and exercises - https://www.kaggle.com/kaggle5daysofai
